@@ -697,19 +697,29 @@ if st.session_state.get("module2_done"):
     )
 
     if st.button("🤖 Gerar Relatório Executivo", type="primary", use_container_width=True):
-        from dotenv import load_dotenv
-        load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+        
+        # --- ALTERAÇÃO FEITA AQUI ---
+        # Tenta carregar dados do arquivo .env (se estiver rodando no computador local)
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+        except ImportError:
+            # Se a biblioteca dotenv não existir (como no Streamlit Cloud sem ela no requirements.txt), ignora.
+            pass
 
+        # Usa st.secrets.get() para buscar primeiro nas Secrets do Streamlit Cloud
+        # Caso não ache, o fallback (plano B) é o os.getenv() para buscar do .env local
         if "OpenAI" in api_choice:
-            api_key = os.getenv("OPENAI_API_KEY", "")
+            api_key = st.secrets.get("OPENAI_API_KEY", os.getenv("OPENAI_API_KEY", ""))
             if not api_key:
-                st.error("OPENAI_API_KEY não encontrada no arquivo .env")
+                st.error("🔑 OPENAI_API_KEY não encontrada nas secrets do Streamlit nem no arquivo .env.")
                 st.stop()
         else:
-            api_key = os.getenv("GROQ_API_KEY", "")
+            api_key = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
             if not api_key:
-                st.error("GROQ_API_KEY não encontrada no arquivo .env")
+                st.error("🔑 GROQ_API_KEY não encontrada nas secrets do Streamlit nem no arquivo .env.")
                 st.stop()
+        # --- FIM DA ALTERAÇÃO ---
 
         # ── Agent 1: Collector ──
         with st.spinner("🔍 Agent 1 — Coletando dados dos módulos..."):
