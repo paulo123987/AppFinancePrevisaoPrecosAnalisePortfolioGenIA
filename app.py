@@ -329,7 +329,7 @@ with st.sidebar:
     st.markdown("---")
     col_d1, col_d2 = st.columns(2)
     with col_d1:
-        start_date = st.date_input("📅 Início", value=datetime.now() - timedelta(days=365))
+        start_date = st.date_input("📅 Início", value=datetime.now() - timedelta(days=59))
     with col_d2:
         end_date = st.date_input("📅 Fim", value=datetime.now())
 
